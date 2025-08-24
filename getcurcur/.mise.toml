@@ -1,0 +1,160 @@
+# mise configuration for getcurcur project
+# https://mise.jdx.dev/
+
+[tools]
+python = "3.13"
+uv = "latest"
+
+[env]
+PYTHONPATH = "src:$PYTHONPATH"
+PYTHONDONTWRITEBYTECODE = "1"
+PYTHONUNBUFFERED = "1"
+
+[tasks.setup]
+description = "Setup development environment"
+run = [
+    "echo 'Setting up development environment...'",
+    "uv venv --python 3.13",
+    "uv pip install -e .[dev]",
+    "echo 'Development environment setup complete!'"
+]
+
+[tasks.install]
+description = "Install package in development mode"
+run = "uv pip install -e ."
+
+[tasks.test]
+description = "Run tests with pytest"
+run = "pytest tests/ -v --cov=src/getcurcur --cov-report=term-missing"
+
+[tasks.test-quick]
+description = "Run tests quickly without coverage"
+run = "pytest tests/ -v"
+
+[tasks.lint]
+description = "Run linting with ruff"
+run = "ruff check src/ tests/"
+
+[tasks.format]
+description = "Format code with ruff"
+run = [
+    "ruff format src/ tests/",
+    "ruff check --fix src/ tests/"
+]
+
+[tasks.type-check]
+description = "Run type checking with mypy"
+run = "mypy --install-types --non-interactive src/getcurcur tests/"
+
+[tasks.browsers]
+description = "Install Playwright browsers"
+run = "python -m playwright install chromium"
+
+[tasks.dev]
+description = "Run getcurcur CLI for development testing"
+run = "python -m getcurcur.main"
+
+[tasks.show]
+description = "Show exchange rates (development test)"
+run = "python -m getcurcur.main show"
+
+[tasks.show-json]
+description = "Show exchange rates in JSON format"
+run = "python -m getcurcur.main show -f json"
+
+[tasks.show-woori]
+description = "Show Woori Bank exchange rates"
+run = "python -m getcurcur.main show -b woori"
+
+[tasks.convert]
+description = "Test currency conversion (100 USD to KRW)"
+run = "python -m getcurcur.main convert 100 USD"
+
+[tasks.list-providers]
+description = "List all available providers"
+run = "python -m getcurcur.main list-providers"
+
+[tasks.clean]
+description = "Clean build artifacts and cache"
+run = [
+    "find . -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true",
+    "find . -type d -name '.pytest_cache' -exec rm -rf {} + 2>/dev/null || true", 
+    "find . -type d -name '.mypy_cache' -exec rm -rf {} + 2>/dev/null || true",
+    "find . -type d -name '.ruff_cache' -exec rm -rf {} + 2>/dev/null || true",
+    "find . -type d -name '*.egg-info' -exec rm -rf {} + 2>/dev/null || true",
+    "find . -type d -name 'build' -exec rm -rf {} + 2>/dev/null || true",
+    "find . -type d -name 'dist' -exec rm -rf {} + 2>/dev/null || true",
+    "rm -rf .coverage htmlcov/ .tox/",
+    "echo 'Cleanup complete!'"
+]
+
+[tasks.build]
+description = "Build package using hatch"
+run = "hatch build"
+
+[tasks.check-all]
+description = "Run all quality checks"
+run = [
+    "mise run format",
+    "mise run lint", 
+    "mise run type-check",
+    "mise run test"
+]
+
+[tasks.demo]
+description = "Run comprehensive demo"
+run = [
+    "echo '=== GetCurCur Demo ==='",
+    "echo ''",
+    "echo '=== Available Providers ==='",
+    "python -m getcurcur.main list-providers",
+    "echo ''",
+    "echo '=== Hana Bank Exchange Rates ==='", 
+    "python -m getcurcur.main show -b hana",
+    "echo ''",
+    "echo '=== USD Only ==='",
+    "python -m getcurcur.main show -c USD",
+    "echo ''",
+    "echo '=== Currency Conversion Demo ==='",
+    "python -m getcurcur.main convert 100 USD",
+    "echo ''",
+    "echo '=== JSON Output ==='",
+    "python -m getcurcur.main show -c USD -f json"
+]
+
+[tasks.install-dev]
+description = "Install with development dependencies"
+run = "uv pip install -e .[dev,test]"
+
+[tasks.check-deps]
+description = "Check installed dependencies"
+run = "uv pip list"
+
+[tasks.shell]
+description = "Activate development shell"
+run = "echo 'Use: source .venv/bin/activate (Unix) or .venv\\Scripts\\activate (Windows)'"
+
+# Aliases for common tasks
+[tasks.t]
+alias = "test"
+
+[tasks.tq]
+alias = "test-quick"
+
+[tasks.l] 
+alias = "lint"
+
+[tasks.f]
+alias = "format"
+
+[tasks.tc]
+alias = "type-check"
+
+[tasks.s]
+alias = "show"
+
+[tasks.c]
+alias = "clean"
+
+[tasks.d]
+alias = "demo"
